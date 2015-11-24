@@ -1,0 +1,39 @@
+{
+  "name": "barbarianChallenge",
+  "description": "Barbarian Group Coding Challenge",
+  "version": "1.0.0",
+  "license": "UNLICENSED",
+  "maintainers": [
+    {
+      "name": "Branden Dane",
+      "email": "DaneTheory@gmail.com",
+      "web": "http://danetheory.com"
+    }
+  ],
+  "repository": [
+    {
+      "type": "git",
+      "url": "https://github.com/DaneTheory/noop.git"
+    }
+  ],
+  "homepage": "http://danetheory.github.io/noop",
+  "devDependencies": {
+    "browser-sync": "*",
+    "gulp": "*",
+    "gulp-autoprefixer": "*",
+    "gulp-bytediff": "^1.0.0",
+    "gulp-cache": "^0.4.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-gh-pages": "*",
+    "gulp-iconfont": "*",
+    "gulp-if": "^2.0.0",
+    "gulp-imagemin": "^2.4.0",
+    "gulp-notify": "*",
+    "gulp-plumber": "*",
+    "gulp-rename": "*",
+    "gulp-sass": "*",
+    "gulp-uglify": "^1.5.1",
+    "gulp-useref": "^3.0.2",
+    "run-sequence": "^1.1.5"
+  }
+}
