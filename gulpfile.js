@@ -147,6 +147,11 @@ gulp.task('watch', function() {
     gulp.watch(paths.src + 'index.html', browserSync.reload);
 });
 
+gulp.task('deploy', function () {
+  return gulp.src(paths.prod + '**/*')
+    .pipe(deploy())
+});
+
 gulp.task('default', function(callback) {
   runSequence(['styles', 'vscripts', 'scripts', 'bsDev', 'watch'],
     callback

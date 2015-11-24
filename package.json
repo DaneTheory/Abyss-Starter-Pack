@@ -1,6 +1,6 @@
 {
-  "name": "barbarianChallenge",
-  "description": "Barbarian Group Coding Challenge",
+  "name": "abyssStarterPack",
+  "description": "Application development starter pack.",
   "version": "1.0.0",
   "license": "UNLICENSED",
   "maintainers": [
@@ -13,10 +13,10 @@
   "repository": [
     {
       "type": "git",
-      "url": "https://github.com/DaneTheory/noop.git"
+      "url": "https://github.com/DaneTheory/Abyss-Starter-Pack.git"
     }
   ],
-  "homepage": "http://danetheory.github.io/noop",
+  "homepage": "http://danetheory.github.io/Abyss-Starter-Pack",
   "devDependencies": {
     "browser-sync": "*",
     "gulp": "*",
