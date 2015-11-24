@@ -19,6 +19,7 @@
   "homepage": "http://danetheory.github.io/Abyss-Starter-Pack",
   "devDependencies": {
     "browser-sync": "*",
+    "del": "^2.1.0",
     "gulp": "*",
     "gulp-autoprefixer": "*",
     "gulp-bytediff": "^1.0.0",

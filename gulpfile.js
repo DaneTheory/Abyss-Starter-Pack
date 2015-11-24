@@ -1,23 +1,25 @@
 'use strict';
 
-var gulp = require('gulp');
-var useref = require('gulp-useref');
-var gulpIf = require('gulp-if');
-var plumber = require('gulp-plumber');
-var rename = require('gulp-rename');
-var del = require('del');
-var autoprefixer = require('gulp-autoprefixer');
-var imagemin = require('gulp-imagemin');
-var cache = require('gulp-cache');
-var sass = require('gulp-sass');
-var notify = require('gulp-notify');
-var gulpif = require('gulp-if');
-var bytediff = require('gulp-bytediff');
+var gulp = require('gulp'),
+    useref = require('gulp-useref'),
+    gulpIf = require('gulp-if'),
+    plumber = require('gulp-plumber'),
+    rename = require('gulp-rename'),
+    del = require('del'),
+    autoprefixer = require('gulp-autoprefixer'),
+    imagemin = require('gulp-imagemin'),
+    cache = require('gulp-cache'),
+    sass = require('gulp-sass'),
+    notify = require('gulp-notify'),
+    gulpif = require('gulp-if'),
+    bytediff = require('gulp-bytediff'),
+    concat = require('gulp-concat'),
+    uglify = require('gulp-uglify'),
+    deploy = require('gulp-gh-pages'),
+    browsersync = require('browser-sync'),
+    reload = browsersync.reload;
 var exec = require('child_process').exec;
-var deploy = require('gulp-gh-pages');
 var runsequence = require('run-sequence').use(gulp);
-var browsersync = require('browser-sync');
-var reload = browsersync.reload;
 
 var paths = {
   src: './src/',
@@ -28,7 +30,7 @@ var paths = {
   css: 'css/',
   scripts: 'scripts/',
   vendor: 'vendor/',
-  images: 'images/**/*.+(png|jpg|jpeg|gif|svg)',
+  images: 'images/',
   fonts: 'fonts/'
 }
 
@@ -46,18 +48,20 @@ function bytediffFormatter(data) {
 gulp.task('bsDev', function() {
     browsersync({
         server: {
-            baseDir: paths.dev,
-            port: 8081
-        }
+            baseDir: paths.dev
+        },
+
+        port: 8081
     })
 })
 
 gulp.task('bsProd', function() {
     browsersync({
         server: {
-            baseDir: paths.prod,
-            port: 8088
-        }
+            baseDir: paths.prod
+        },
+
+        port: 8088
     })
 })
 
@@ -69,11 +73,12 @@ gulp.task('styles', function() {
         browsers: ['last 2 versions']
     }))
     .pipe(bytediff.stop(bytediffFormatter))
+    .pipe(gulp.dest( paths.src + paths.styles + paths.css ))
     .pipe(gulp.dest( paths.dev + paths.styles + paths.css ))
     .pipe(browsersync.reload({
         stream: true
     }))
-});
+})
 
 gulp.task('vscripts', function () {
     return gulp.src([ paths.src + paths.scripts + paths.vendor + '**/*.js' ])
@@ -85,7 +90,7 @@ gulp.task('vscripts', function () {
         .pipe(browsersync.reload({
             stream: true
         }))
-});
+})
 
 gulp.task('scripts', function () {
     return gulp.src([ paths.src + paths.scripts + '**/*.js',
@@ -97,7 +102,7 @@ gulp.task('scripts', function () {
         .pipe(browsersync.reload({
             stream: true
         }))
-});
+})
 
 // gulp.task('html', function () {
 //     return gulp.src('app/*.html')
@@ -105,58 +110,72 @@ gulp.task('scripts', function () {
 //         .pipe(gulp.dest('dist'));
 // });
 
-gulp.task('html', function() {
-  var assets = useref.assets();
-  return gulp.src([ paths.src + 'index.html' ])
-    .pipe(assets)
+// gulp.task('html', function() {
+  // var assets = useref.assets();
+  // return gulp.src('./src/*.html')
+    // .pipe(assets)
     // Minifies only if it's a CSS file
     // .pipe(gulpIf('*.css', minifyCSS()))
     // Uglifies only if it's a Javascript file
     // .pipe(gulpIf('*.js', uglify()))
-    .pipe(assets.restore())
+    //.pipe(assets.restore())
+    // .pipe(useref())
+    // .pipe(gulp.dest(paths.dev))
+// })
+
+gulp.task('html', function() {
+  return gulp.src('src/index.html')
     .pipe(useref())
-    .pipe(gulp.dest(paths.dev))
-});
+    .pipe(gulp.dest('./dev'))
+    .pipe(browsersync.reload({
+        stream: true
+    }))
+})
 
 gulp.task('images', function() {
-  return gulp.src([ paths.src + paths.images ])
-  .pipe(cache(imagemin({
-      interlaced: true,
-    })))
+  return gulp.src([ paths.src + paths.images + '**/*.+(png|jpg|jpeg|gif|svg)' ])
+    .pipe(bytediff.start())
+    .pipe(cache(imagemin({
+        interlaced: true,
+      })))
+    .pipe(bytediff.stop(bytediffFormatter))
   .pipe(gulp.dest(paths.dev + paths.images))
-});
+})
 
 gulp.task('fonts', function() {
-  return gulp.src([ paths.src + paths.fonts ])
+  return gulp.src([ paths.src + paths.fonts + '**/*.*'])
   .pipe(gulp.dest(paths.dev + paths.fonts))
-});
+})
 
 gulp.task('cleanDev', function(callback) {
   del(paths.dev);
   return cache.clearAll(callback);
-});
+})
 
 gulp.task('cleanProd', function(callback) {
   del(paths.prod);
   return cache.clearAll(callback);
-});
+})
 
 gulp.task('watch', function() {
-    // gulp.watch('app/scss/**/*.scss', ['styles']);
-    // gulp.watch('app/js/**/*.js', browserSync.reload);
-    gulp.watch(paths.src + 'index.html', browserSync.reload);
-});
+    gulp.watch(paths.src + '*.html', ['html']);
+    gulp.watch(paths.src + paths.styles + paths.sass, ['styles']);
+    gulp.watch(paths.src + paths.scripts + paths.vendor + '**/*.js', ['vscripts']);
+    gulp.watch([ paths.src + paths.scripts + '**/*.js', !paths.src + paths.scripts + paths.vendor + '**/*.js'], ['scripts']);
+    gulp.watch(paths.src + paths.fonts + '**/*.+(eot|svg|ttf|woff|woff2)', ['fonts']);
+    gulp.watch(paths.src + paths.images + '**/*.+(png|jpg|jpeg|gif|svg)', ['images']);
+})
 
 gulp.task('deploy', function () {
   return gulp.src(paths.prod + '**/*')
     .pipe(deploy())
-});
+})
 
 gulp.task('default', function(callback) {
-  runSequence(['styles', 'vscripts', 'scripts', 'bsDev', 'watch'],
+  runsequence(['images', 'fonts', 'styles', 'vscripts', 'scripts', 'html', 'bsDev', 'watch'],
     callback
   )
-});
+})
 
 // gulp.task('build', function(callback) {
 //   runSequence('clean:dist',
